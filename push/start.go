@@ -1,15 +1,15 @@
 package push
 
 import (
-  "github.com/xpwu/go-stream/conn"
-  "github.com/xpwu/go-stream/fakehttp"
-  "github.com/xpwu/go-stream/push/protocol"
-  "github.com/xpwu/go-log/log"
-  "github.com/xpwu/go-xnet/xtcp"
-  //"code.anywithyou.com/utils/uniqID"
   "crypto/md5"
   "encoding/hex"
   "fmt"
+  "github.com/xpwu/go-log/log"
+  "github.com/xpwu/go-reqid/reqid"
+  "github.com/xpwu/go-stream/conn"
+  "github.com/xpwu/go-stream/fakehttp"
+  "github.com/xpwu/go-stream/push/protocol"
+  "github.com/xpwu/go-xnet/xtcp"
   "io"
   "time"
 )
@@ -18,9 +18,7 @@ var hostId = ""
 
 func Start() {
 
-  // todo
-  //m5 := md5.Sum([]byte(uniqID.Get()))
-  m5 := md5.Sum([]byte{})
+  m5 := md5.Sum([]byte(reqid.RandomID()))
   hostId = hex.EncodeToString(m5[:])
 
   conn.RegisterVar("pushtoken", func(conn conn.Conn) string {
