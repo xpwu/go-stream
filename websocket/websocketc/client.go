@@ -25,7 +25,7 @@ type Client struct {
 	push          chan []byte
 	id            uint32
 	connected     bool
-	maxConcurrent int
+	concurrent chan struct{}
 	maxBytes      uint32
 }
 
@@ -51,7 +51,7 @@ func (c *Client) readHandshake(conn *websocket.Conn) (peerConnectionID conn2.Id,
     return 0, fmt.Errorf("len(handshake) should be 16, actual %d", len(m))
   }
   m = m[3:] // ignore HeartBeat_s  FrameTimeout_s
-  c.maxConcurrent = int(m[0])
+  c.concurrent = make(chan struct{}, int(m[0]))
   m = m[1:]
   c.maxBytes = binary.BigEndian.Uint32(m[0:])
   m = m[4:]
@@ -140,6 +140,7 @@ func (c *Client) popChan(id uint32) (ch chan *fakehttp.Response, ok bool) {
 	defer c.mu.Unlock()
 	ch, ok = c.m[id]
 	delete(c.m, id)
+	<-c.concurrent
 	return
 }
 
@@ -148,7 +149,7 @@ func (c *Client) addChan(ch chan *fakehttp.Response) uint32 {
 	defer c.mu.Unlock()
 	c.id++
 	c.m[c.id] = ch
-
+	c.concurrent <- struct{}{}
 	return c.id
 }
 
@@ -201,6 +202,11 @@ func (c *Client) send(ctx context.Context, request *fakehttp.Request) (res *fake
 
 	logger.Debug(fmt.Sprintf("fake http reqid(%d)", id))
 	request.SetReqId(id)
+
+	data := request.Buffers()
+	if len(data) > int(c.maxBytes) {
+		return nil, errors.New("request is too large")
+	}
 
 	err = c.c.Write(request.Buffers())
 	if err != nil {
