@@ -11,5 +11,4 @@ require (
 	github.com/xpwu/go-reqid v0.0.0-20220121111345-9dac6c8cd03c
 	github.com/xpwu/go-var v0.0.0-20220113152205-b5706ac3a7dd
 	github.com/xpwu/go-xnet v0.0.0-20220120153650-2b224b1315d3
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
