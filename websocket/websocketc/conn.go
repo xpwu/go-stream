@@ -7,11 +7,8 @@ import (
   conn2 "github.com/xpwu/go-stream/conn"
   "net"
   "sync"
-  "sync/atomic"
   "time"
 )
-
-var sequence uint32 = 0
 
 type conn struct {
   c       *websocket.Conn
@@ -28,7 +25,7 @@ func newConn(ctx context.Context, c *websocket.Conn) *conn {
   ret := &conn{
     c:  c,
     mu: make(chan struct{}, 1),
-    id: conn2.NewId(atomic.AddUint32(&sequence, 1)),
+    id: 0,
   }
   ret.ctx, ret.cancelF = context.WithCancel(ctx)
 

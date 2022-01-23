@@ -22,6 +22,7 @@ type server struct {
 	Proxy                      *proxy.Config
 	ProxyVar                   *proxy.ConfigVar `conf:"-"`
 	MaxConcurrentPerConnection int              `conf:"-"`
+	MaxBytesPerFrame           uint32           `conf:"-"`
 }
 
 func (s *server) checkValue(logger *log.Logger) {
@@ -58,6 +59,7 @@ var configValue = &config{
 			Origin:                     []string{"*"},
 			Proxy:                      proxy.DefaultConfig(),
 			MaxConcurrentPerConnection: 5,
+			MaxBytesPerFrame:           4 * 1024 * 1024,
 		},
 	},
 }

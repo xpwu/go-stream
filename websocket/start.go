@@ -2,6 +2,7 @@ package websocket
 
 import (
   "context"
+  "encoding/binary"
   "fmt"
   "github.com/gorilla/websocket"
   "github.com/xpwu/go-log/log"
@@ -160,6 +161,26 @@ func checkSameOrigin(r *http.Request) bool {
 //  return s == t
 //}
 
+/*
+HeartBeat_s | FrameTimeout_s | MaxConcurrent | MaxBytes | connect id
+   HeartBeat_s: 2 bytes, net order
+   FrameTimeout_s: 1 byte  ===0
+   MaxConcurrent: 1 byte
+   MaxBytes: 4 bytes, net order
+   connect id: 8 bytes, net order
+ */
+func writeHandshake(c *conn, s *server) (err error) {
+  res := make([]byte, 2 + 1 + 1 + 4 + 8)
+  // 最大可设置 65535 s 的心跳时间，再实际使用中，几乎不会设置这么大的心跳时间
+  binary.BigEndian.PutUint16(res, uint16(s.HeartBeat_s/time.Second))
+  res[2] = byte(0) // FrameTimeout_s === 0
+  res[3] = byte(s.MaxConcurrentPerConnection)
+  binary.BigEndian.PutUint32(res[4:], s.MaxBytesPerFrame)
+  binary.BigEndian.PutUint64(res[8:], uint64(c.Id()))
+
+  return c.Write([][]byte{res})
+}
+
 // 心跳的处理：由服务器主动发起Ping，激发客户端回应Pong
 
 func handler(upgrader *websocket.Upgrader,
@@ -193,6 +214,8 @@ func handler(upgrader *websocket.Upgrader,
       fConn.CloseWith(nil)
     }()
 
+    conn.SetReadLimit(int64(s.MaxBytesPerFrame))
+
     // 当收到Pong 时，需要重新设置一下 ReadDeadLine , 继续监测是否有正常的心跳
     conn.SetPongHandler(func(appData string) error {
       logger.Debug("receive pong")
@@ -204,7 +227,10 @@ func handler(upgrader *websocket.Upgrader,
       return nil
     })
 
-    // todo 发送自己定义的握手数据
+    if err := writeHandshake(fConn, s); err != nil {
+      logger.Error("write handshake error! connection will close. ", err)
+      return
+    }
 
     for {
       conn2.TryConcurrent(fConn.ctx, fConn.concurrent)

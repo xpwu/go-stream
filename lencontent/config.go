@@ -60,7 +60,7 @@ var configValue = &config{
 			Proxy:                      proxy.DefaultConfig(),
 			MaxConcurrentPerConnection: 5,
 			FrameTimeout_s:             10,
-			MaxBytesPerFrame:           1 * 1024 * 1024,
+			MaxBytesPerFrame:           4 * 1024 * 1024,
 		},
 	},
 }
