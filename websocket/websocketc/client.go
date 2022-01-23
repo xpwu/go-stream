@@ -74,7 +74,13 @@ func (c *Client) read() {
       res := fakehttp.NewResponseWithStream(m)
       if res.ReqId() == fakehttp.PushReqId {
         logger.Debug(fmt.Sprintf("receive push data len(%d)", len(res.Data())))
-        c.push <- res.Data()
+        // 超过buffer的数量，自动丢弃
+        // 之所以不使用回调方式，是因为上层收到数据后一样要做goroutine的切换，另外上层如果有同步操作，还会阻塞这里的执行
+        select {
+        case c.push <- res.Data():
+        default:
+        }
+
         continue
       }
 
