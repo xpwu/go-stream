@@ -49,7 +49,7 @@ func runServer(s *server) {
   logger.Info("server(websocket) listen " + s.Net.Listen.LogString())
 
   var upgrader = &websocket.Upgrader{
-    HandshakeTimeout: 5 * time.Second,
+    HandshakeTimeout: 30 * time.Second,
     ReadBufferSize:   2048,
     WriteBufferSize:  4096,
     WriteBufferPool:  &BufferPool{},
@@ -203,6 +203,8 @@ func handler(upgrader *websocket.Upgrader,
       }
       return nil
     })
+
+    // todo 发送自己定义的握手数据
 
     for {
       conn2.TryConcurrent(fConn.ctx, fConn.concurrent)

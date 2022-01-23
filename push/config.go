@@ -11,8 +11,8 @@ type config struct {
 
 type server struct {
 	Net                *xtcp.Net
-	CloseSubProtocolId byte
-	DataSubProtocolId  byte
+	CloseSubProtocolId byte	`conf:"-"`
+	DataSubProtocolId  byte	`conf:"-"`
 }
 
 var configValue = &config{

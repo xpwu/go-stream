@@ -34,6 +34,8 @@ github.com/xdg/stringprep v1.0.0/go.mod h1:Jhud4/sHMO4oL310DaZAKk9ZaJ08SJfe+sJh0
 github.com/xpwu/go-cmd v0.0.0-20220120085450-0e19f81d7237/go.mod h1:hlID1UUINRJXJSSf1nAsPfLJbSNafd82ouYs0gxvsgM=
 github.com/xpwu/go-config v0.0.0-20220120022145-665ba74379f3/go.mod h1:WcIGlQK06FsHcu0NeuQ7bB8bZFkeVvPGwrcKI2aMaFc=
 github.com/xpwu/go-config v0.0.0-20220121153622-7b6f40653b1b/go.mod h1:WcIGlQK06FsHcu0NeuQ7bB8bZFkeVvPGwrcKI2aMaFc=
+github.com/xpwu/go-config v0.0.0-20220123075748-0f7851f28163 h1:dD92GR2Kqq6vB3D2QQZlczO9SwYVuXSVTd2UHqLbiUY=
+github.com/xpwu/go-config v0.0.0-20220123075748-0f7851f28163/go.mod h1:MHp/pOvdO9l81QG2fOlQDOeOie7q2SnK2BDUgrXX5C8=
 github.com/xpwu/go-httpclient v0.0.0-20220121160550-a00953ba3a2e/go.mod h1:VZnGTITinyZ8lAnQYN/2ZEgCDz5m9ROPrMJjGYuD5rw=
 github.com/xpwu/go-log v0.0.0-20220120022843-2cbc01400de4/go.mod h1:qulI7g0Yyd0Wr5RbH5cVEZiGhJISJVgGjwy6HnQaEms=
 github.com/xpwu/go-log v0.0.0-20220121154757-1a8eef3685db h1:RYQSooe01Ki1JfeNDAB5R8jNR2LRaO0zmZocod8SiOM=
@@ -45,6 +47,7 @@ github.com/xpwu/go-reqid v0.0.0-20220121111345-9dac6c8cd03c/go.mod h1:VG6DraZK8f
 github.com/xpwu/go-var v0.0.0-20220113152205-b5706ac3a7dd h1:VfU1P87JWOA8F0wrFo5YhdcceJsviefx/wSGMU/JSaY=
 github.com/xpwu/go-var v0.0.0-20220113152205-b5706ac3a7dd/go.mod h1:RZtbOEjZTiu/pho9MAogh9Dd+41XpHb73KuDFpNlqxw=
 github.com/xpwu/go-x v0.0.0-20220120021151-4ac8ee529bca/go.mod h1:fbWlT5O1aPLdzOhKnkPFao9E3q5LjQY3GXFnzML6Xz4=
+github.com/xpwu/go-x v0.0.0-20220123075150-a3b3e80eea7e/go.mod h1:fbWlT5O1aPLdzOhKnkPFao9E3q5LjQY3GXFnzML6Xz4=
 github.com/xpwu/go-xnet v0.0.0-20220120153650-2b224b1315d3/go.mod h1:uyI3T+FpSSBKPHn9TIhqCRVYm8jb6WYe+qo9DuQQ7jE=
 go.mongodb.org/mongo-driver v1.1.2/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qLUO4lqsUM=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
