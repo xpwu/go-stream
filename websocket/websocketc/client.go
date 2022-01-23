@@ -1,4 +1,4 @@
-package websocketC
+package websocketc
 
 import (
   "context"

@@ -1,4 +1,4 @@
-package pushC
+package pushc
 
 import (
 	"context"
