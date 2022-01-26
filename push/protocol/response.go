@@ -20,8 +20,9 @@ Request:
    sequence | state | len | <data>
      sizeof(sequence) = 4. net order
      sizeof(state) = 1.
-               state = 0: success; 1: hostname error
-                ; 2: token not exist; 3: server intelnal error
+               state = 0: success;         1: hostname error;
+                       2: token not exist; 3: server intelnal error;
+                       4: timeout
      sizeof(len) = 4. len = sizeof(data) net order
      data: subprotocol Response data
 */
@@ -33,6 +34,7 @@ const (
 	HostNameErr
 	TokenNotExist
 	ServerInternalErr
+	Timeout
 )
 
 func StateText(s state) string {
@@ -45,6 +47,8 @@ func StateText(s state) string {
 		return "TokenNotExist"
 	case ServerInternalErr:
 		return "ServerInternalErr"
+	case Timeout:
+		return "Timeout"
 	default:
 		return "Unknown"
 	}

@@ -11,6 +11,7 @@ import (
 )
 
 type conn struct {
+  conn2.Base
   c       *websocket.Conn
   mu      chan struct{}
   ctx     context.Context
@@ -69,6 +70,7 @@ func (c *conn) Write(buffers net.Buffers) error {
 func (c *conn) CloseWith(err error) {
   c.once.Do(func() {
     _, logger := log.WithCtx(c.ctx)
+    c.Base.Close()
     c.cancelF()
     if err != nil {
       logger.Error(err)

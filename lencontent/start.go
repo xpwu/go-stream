@@ -69,14 +69,26 @@ func runServer(s *server) {
         continue
       }
 
-      conn2.TryConcurrent(ctx, freqConn.concurrent)
-      logger.Debug("new fake http request")
-
       fhttpReq, err := fakehttp.NewRequest(freqConn, request.data)
       if err != nil {
         logger.Error(err, ", will close connection")
         return
       }
+      // push ack 不计入并发统计
+      yes, err := fhttpReq.IsPushAck()
+      if err != nil {
+        logger.Error(err, ", will close connection")
+        return
+      }
+      if yes {
+        pushId := fakehttp.Bytes2PushID(fhttpReq.Data, freqConn)
+        logger.Debug("receive pushAck: ", pushId.Value)
+        pushId.Ack()
+        continue
+      }
+
+      conn2.TryConcurrent(ctx, freqConn.concurrent)
+      logger.Debug("new fake http request")
 
       logger.Debug(fmt.Sprintf("read request(addr=%p)", fhttpReq))
 

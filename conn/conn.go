@@ -31,7 +31,61 @@ func NewId(sequence uint32) Id {
 	return Id((t << 32) + uint64(sequence))
 }
 
+type ExtraValue interface {
+	UnInit()
+}
+
+// 并发安全
+type extraValueInterface interface {
+	Load(interface{}) (ExtraValue, bool)
+	Store(key interface{}, value ExtraValue)
+	LoadOrStore(key interface{}, value ExtraValue) (actual ExtraValue, loaded bool)
+	LoadAndDelete(key interface{}) (value ExtraValue, loaded bool)
+	Delete(interface{})
+	Range(func(key interface{}, value ExtraValue) (shouldContinue bool))
+}
+
+type Base sync.Map
+
+func (b *Base) Load(i interface{}) (ExtraValue, bool) {
+	v,ok := ((*sync.Map)(b)).Load(i)
+	return v.(ExtraValue), ok
+}
+
+func (b *Base) Store(key interface{}, value ExtraValue) {
+	((*sync.Map)(b)).Store(key, value)
+}
+
+func (b *Base) LoadOrStore(key interface{}, value ExtraValue) (actual ExtraValue, loaded bool) {
+	v,ok := ((*sync.Map)(b)).LoadOrStore(key, value)
+	return v.(ExtraValue), ok
+}
+
+func (b *Base) LoadAndDelete(key interface{}) (value ExtraValue, loaded bool) {
+	v,ok := ((*sync.Map)(b)).LoadAndDelete(key)
+	return v.(ExtraValue), ok
+}
+
+func (b *Base) Delete(i interface{}) {
+	((*sync.Map)(b)).Delete(i)
+}
+
+func (b *Base) Range(f func(key interface{}, value ExtraValue) (shouldContinue bool)) {
+	f1 := func(key interface{}, value interface{}) (shouldContinue bool) {
+		return f(key, value.(ExtraValue))
+	}
+	((*sync.Map)(b)).Range(f1)
+}
+
+func (b *Base) Close() {
+	b.Range(func(key interface{}, value ExtraValue) (shouldContinue bool) {
+		value.UnInit()
+		return true
+	})
+}
+
 type Conn interface {
+	extraValueInterface
 	vari.VarObject
 	Id() Id
 	// 所有的实现中，需要满足 multiple goroutines 的同时调用

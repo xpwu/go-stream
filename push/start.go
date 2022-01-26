@@ -31,6 +31,9 @@ func Start() {
       continue
     }
 
+    // 转换数据
+    s.AckTimeout = s.AckTimeout * time.Second
+
     go runServer(s)
   }
 }
@@ -117,13 +120,38 @@ func processRequest(s *server, r *protocol.Request) error {
 
   // 写给客户端
   logger.Debug(fmt.Sprintf("push data(len=%d) to client connection(conn_id=%s)", len(r.Data), con.Id()))
-  clientRes := fakehttp.NewResponseWithPush(con, r.Data)
+  pushId := fakehttp.GetPushID(con)
+  // 先准备好ack的接收
+  ch := pushId.WaitAck()
+  clientRes := fakehttp.NewResponseWithPush(con, pushId.ToBytes(), r.Data)
   if err = clientRes.Write(); err != nil {
     logger.Error(fmt.Sprintf("write push data to client conn(id=%s) err. ", con.Id()), err)
     con.CloseWith(fmt.Errorf("write push data from push conn(id=%s) err, %v. Will close this connection(id=%s)",
       r.Conn.Id(), err, con.Id()))
 
     return protocol.NewResponse(r, protocol.ServerInternalErr).Write()
+  }
+
+  // 根据配置要求，0 表示不等待ack
+  if s.AckTimeout == 0 {
+    return protocol.NewResponse(r).Write()
+  }
+
+  // 写上游服务器
+  // todo 上游服务器已断开连接的情况下，这里仍会等待
+
+  timer := time.NewTimer(s.AckTimeout)
+
+  select {
+  case _,ok := <- ch:
+    timer.Stop()
+    if !ok {
+      return protocol.NewResponse(r, protocol.ServerInternalErr).Write()
+    }
+  case <- timer.C:
+    pushId.CancelWaitingAck()
+    logger.Warning("wait client ack timeout")
+    return protocol.NewResponse(r, protocol.Timeout).Write()
   }
 
   return protocol.NewResponse(r).Write()

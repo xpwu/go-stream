@@ -17,6 +17,11 @@ content protocol:
          header-end-flag: 1 byte, === 0;
          data:       [optional]
 
+		reqid = 1: client push ack to server.
+					ack: no headers;
+					data: pushId. 4 bytes, net order;
+
+  ---------------------------------------------------------------------
      response ---
        reqid | status | data
          reqid: 4 bytes, net order;
@@ -26,7 +31,9 @@ content protocol:
 
 
      reqid = 1: server push to client
-
+				status: 0
+				data: first 4 bytes --- pushId, net order;
+							last --- real data
 
 */
 
@@ -51,11 +58,11 @@ func pushReqId() []byte {
 	return ret
 }
 
-func NewResponseWithPush(conn conn.Conn, data []byte) *Response {
+func NewResponseWithPush(conn conn.Conn, pushId []byte, data []byte) *Response {
 	return &Response{
 		conn:   conn,
 		reqId:  pushReqId(),
-		data:   data,
+		data:   append(pushId, data...),
 		status: Success,
 	}
 }

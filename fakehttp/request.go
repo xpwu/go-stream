@@ -21,6 +21,11 @@ content protocol:
          header-end-flag: 1 byte, === 0;
          data:       [optional]
 
+		reqid = 1: client push ack to server.
+					ack: no headers;
+					data: pushId. 4 bytes, net order;
+
+  ---------------------------------------------------------------------
      response ---
        reqid | status | data
          reqid: 4 bytes, net order;
@@ -30,7 +35,9 @@ content protocol:
 
 
      reqid = 1: server push to client
-
+				status: 0
+				data: first 4 bytes --- pushId, net order;
+							last --- real data
 
 */
 
@@ -50,6 +57,8 @@ type Request struct {
 	Header map[string]string
 	Data   []byte
 }
+
+var requestPErr = errors.New("stream request protocol error")
 
 func NewRequest(conn conn.Conn, data []byte) (req *Request, err error) {
 	req = &Request{
@@ -84,7 +93,7 @@ func NewRequest(conn conn.Conn, data []byte) (req *Request, err error) {
 	}
 
 	if start > len(data) {
-		err = errors.New("stream request protocol error")
+		err = requestPErr
 		return
 	}
 
@@ -145,6 +154,19 @@ func (r *Request) Buffers() net.Buffers {
 	ret = append(ret, []byte{0}, r.Data)
 
 	return ret
+}
+
+func (r *Request) IsPushAck() (yes bool, err error) {
+	if r.GetReqId() != 1 {
+		return false, nil
+	}
+
+	// no header; data must be push id
+	if len(r.Header) + len(r.Data)  != 4 {
+		return false, requestPErr
+	}
+
+	return true, nil
 }
 
 var (

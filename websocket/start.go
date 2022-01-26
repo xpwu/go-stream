@@ -233,10 +233,13 @@ func handler(upgrader *websocket.Upgrader,
     }
 
     for {
-      conn2.TryConcurrent(fConn.ctx, fConn.concurrent)
 
       logger.Debug("will read request")
 
+      // 这里是设置的底层tcp的超时，并不表示 2次心跳时间必须要能读到message，而是
+      // 读到一次message后，延长2次心跳的超时时间。虽然websocket的ping pong 是单独
+      // 的收发，这里不重置超时时间也不影响心跳的逻辑，但是从上层来考虑，仍然认为收到message
+      // 也是表示client存活的状态。
       err := conn.SetReadDeadline(time.Now().Add(2 * s.HeartBeat_s))
       if err != nil {
         logger.Debug("read message error. ", err, " will close connection")
@@ -258,6 +261,20 @@ func handler(upgrader *websocket.Upgrader,
         logger.Error(err, ", will close connection")
         return
       }
+      // push ack 不计入并发统计
+      yes, err := fhttpReq.IsPushAck()
+      if err != nil {
+        logger.Error(err, ", will close connection")
+        return
+      }
+      if yes {
+        pushId := fakehttp.Bytes2PushID(fhttpReq.Data, fConn)
+        logger.Debug("receive pushAck: ", pushId.Value)
+        pushId.Ack()
+        continue
+      }
+
+      conn2.TryConcurrent(fConn.ctx, fConn.concurrent)
 
       logger.Debug(fmt.Sprintf("read request(addr=%p)", fhttpReq))
 

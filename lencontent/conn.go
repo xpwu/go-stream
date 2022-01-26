@@ -13,6 +13,7 @@ import (
 var sequence uint32 = 0
 
 type conn struct {
+  conn2.Base
   tcpC       *xtcp.Conn
   heartBeat  *time.Timer
   server     *server
@@ -107,6 +108,7 @@ func (c *conn) CloseWith(err error) {
     c.heartBeat.Stop()
     c.heartBeat = nil
   }
+  c.Base.Close()
   c.mu.Unlock()
 
   conn2.DelConn(c)

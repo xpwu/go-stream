@@ -16,6 +16,7 @@ import (
 var sequence uint32 = 0
 
 type conn struct {
+  conn2.Base
   c          *websocket.Conn
   mu         chan struct{}
   ctx        context.Context
@@ -114,6 +115,7 @@ func (c *conn) CloseWith(err error) {
   c.once.Do(func() {
     _, logger := log.WithCtx(c.ctx)
     c.heartBeat.Stop()
+    c.Base.Close()
     c.cancelF()
     conn2.DelConn(c)
     if err != nil {
