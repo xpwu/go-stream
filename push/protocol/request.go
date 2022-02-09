@@ -41,8 +41,8 @@ func NewRequest(conn *xtcp.Conn) *Request {
 	return &Request{Conn: conn, Data: make([]byte, 0)}
 }
 
-func (r *Request) Read(keepAlive time.Duration) (err error) {
-	err = r.Conn.SetReadDeadline(time.Now().Add(keepAlive))
+func (r *Request) Read(until time.Time) (err error) {
+	err = r.Conn.SetReadDeadline(until)
 	if err != nil {
 		return
 	}
