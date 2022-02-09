@@ -10,5 +10,5 @@ require (
 	github.com/xpwu/go-log v0.0.0-20220121154757-1a8eef3685db
 	github.com/xpwu/go-reqid v0.0.0-20220121111345-9dac6c8cd03c
 	github.com/xpwu/go-var v0.0.0-20220113152205-b5706ac3a7dd
-	github.com/xpwu/go-xnet v0.0.0-20220120153650-2b224b1315d3
+	github.com/xpwu/go-xnet v0.0.0-20220209155014-bbba382e903b
 )

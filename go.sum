@@ -49,6 +49,8 @@ github.com/xpwu/go-var v0.0.0-20220113152205-b5706ac3a7dd/go.mod h1:RZtbOEjZTiu/
 github.com/xpwu/go-x v0.0.0-20220120021151-4ac8ee529bca/go.mod h1:fbWlT5O1aPLdzOhKnkPFao9E3q5LjQY3GXFnzML6Xz4=
 github.com/xpwu/go-x v0.0.0-20220123075150-a3b3e80eea7e/go.mod h1:fbWlT5O1aPLdzOhKnkPFao9E3q5LjQY3GXFnzML6Xz4=
 github.com/xpwu/go-xnet v0.0.0-20220120153650-2b224b1315d3/go.mod h1:uyI3T+FpSSBKPHn9TIhqCRVYm8jb6WYe+qo9DuQQ7jE=
+github.com/xpwu/go-xnet v0.0.0-20220209155014-bbba382e903b h1:8OTKneNwSQQjgm4iUvTv1NOyR2BmiAyJYFe8IYrPyKE=
+github.com/xpwu/go-xnet v0.0.0-20220209155014-bbba382e903b/go.mod h1:uyI3T+FpSSBKPHn9TIhqCRVYm8jb6WYe+qo9DuQQ7jE=
 go.mongodb.org/mongo-driver v1.1.2/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qLUO4lqsUM=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
