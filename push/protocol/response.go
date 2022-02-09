@@ -84,7 +84,7 @@ func (r *Response) Write() error {
 	return err
 }
 
-func NewResByConn(c *xtcp.Conn, d time.Duration) (res *Response, err error) {
+func NewResByConn(c *xtcp.Conn, t time.Time) (res *Response, err error) {
 	_, logger := log.WithCtx(c.Context())
 
 	res = &Response{
@@ -95,7 +95,7 @@ func NewResByConn(c *xtcp.Conn, d time.Duration) (res *Response, err error) {
 		State: 0,
 	}
 
-	err = c.SetReadDeadline(time.Now().Add(d))
+	err = c.SetReadDeadline(t)
 	if err != nil {
 		logger.Error(err)
 		return
@@ -108,7 +108,7 @@ func NewResByConn(c *xtcp.Conn, d time.Duration) (res *Response, err error) {
 	}
 
 	s := make([]byte, 1+4)
-	err = c.SetReadDeadline(time.Now().Add(1 * time.Second))
+	err = c.SetReadDeadline(time.Now().Add(5 * time.Second))
 	if err != nil {
 		logger.Error(err)
 		return
@@ -119,6 +119,7 @@ func NewResByConn(c *xtcp.Conn, d time.Duration) (res *Response, err error) {
 		return
 	}
 	res.State = state(s[0])
+	_ = c.SetReadDeadline(time.Time{})
 
 	return
 }
