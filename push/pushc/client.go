@@ -83,19 +83,20 @@ func (c *client) sendOnce(ctx context.Context, data []byte, token string, subP b
   }
 
   select {
-  case <-connClosed:
-    c.popChan(seq)
-    return nil, errors.New("connection closed")
   case res = <-resCh:
     return
+    
+  case <-connClosed:
+    err = errors.New("connection closed")
   case <-timer.C:
-    c.popChan(seq)
-    return nil, timeoutE
+    err = timeoutE
   case <-ctx.Done():
-    return nil, ctx.Err()
+    err = ctx.Err()
   case <-c.ctx.Done():
-    return nil, c.ctx.Err()
+    err = c.ctx.Err()
   }
+  c.popChan(seq)
+  return
 }
 
 func (c *client) connect() (xConn *xtcp.Conn, connClosed chan struct{}, err error) {
