@@ -67,7 +67,6 @@ func Close(ctx context.Context, pushUrl string) error {
 	ctx, logger := log.WithCtx(ctx)
 
 	logger.PushPrefix(fmt.Sprintf("push to %s for close that connection, ", pushUrl))
-	defer logger.PopPrefix()
 
 	logger.Debug("start. ")
 	err := send(ctx, pushUrl, closeSubProtocol, make([]byte, 0), 30*time.Second)
@@ -83,7 +82,6 @@ func PushData(ctx context.Context, pushUrl string, data []byte, timeout time.Dur
 	ctx, logger := log.WithCtx(ctx)
 
 	logger.PushPrefix(fmt.Sprintf("push data(len=%d) to %s, ", len(data), pushUrl))
-	defer logger.PopPrefix()
 
 	logger.Debug("start. ")
 	err := send(ctx, pushUrl, dataSubProtocolId, data, timeout)
