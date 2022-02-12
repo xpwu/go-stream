@@ -37,6 +37,8 @@ github.com/xpwu/go-config v0.0.0-20220121153622-7b6f40653b1b/go.mod h1:WcIGlQK06
 github.com/xpwu/go-config v0.0.0-20220123075748-0f7851f28163 h1:dD92GR2Kqq6vB3D2QQZlczO9SwYVuXSVTd2UHqLbiUY=
 github.com/xpwu/go-config v0.0.0-20220123075748-0f7851f28163/go.mod h1:MHp/pOvdO9l81QG2fOlQDOeOie7q2SnK2BDUgrXX5C8=
 github.com/xpwu/go-httpclient v0.0.0-20220121160550-a00953ba3a2e/go.mod h1:VZnGTITinyZ8lAnQYN/2ZEgCDz5m9ROPrMJjGYuD5rw=
+github.com/xpwu/go-httpclient v0.0.0-20220212065417-ce9c19c7a4a8 h1:b3chqo6XBOn1atWxZW0EqcRy3yCUA9nb9ONzc0vhAR0=
+github.com/xpwu/go-httpclient v0.0.0-20220212065417-ce9c19c7a4a8/go.mod h1:VZnGTITinyZ8lAnQYN/2ZEgCDz5m9ROPrMJjGYuD5rw=
 github.com/xpwu/go-log v0.0.0-20220120022843-2cbc01400de4/go.mod h1:qulI7g0Yyd0Wr5RbH5cVEZiGhJISJVgGjwy6HnQaEms=
 github.com/xpwu/go-log v0.0.0-20220121154757-1a8eef3685db h1:RYQSooe01Ki1JfeNDAB5R8jNR2LRaO0zmZocod8SiOM=
 github.com/xpwu/go-log v0.0.0-20220121154757-1a8eef3685db/go.mod h1:thZXl+ouliDHmuZ8KLz7pAnFu9errw27Vamhv1jA5xE=

@@ -10,8 +10,6 @@ import (
   "io/ioutil"
   "net/http"
   "net/textproto"
-  "path"
-  "strings"
 )
 
 type httpP struct {
@@ -32,10 +30,7 @@ func (h *httpP) Do(ctx context.Context, request *fakehttp.Request) (fres *fakeht
     }
   }()
 
-  url := path.Clean(h.conf.Url.ValueWith(request))
-  if !strings.Contains(url, "://") {
-    url = "http://" + url
-  }
+  url := httpc.RawURL(h.conf.Url.ValueWith(request)).String()
 
   logger.PushPrefix(fmt.Sprintf("proxy to %s,", url))
 
