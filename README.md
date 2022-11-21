@@ -28,6 +28,7 @@ TLS 是否使用TLS, 如果设置为true，则必须设置TlsFile，使用PEM格
 ### push client sdk
 * push sdk中url的必须是 host:ip/pushtoken 的格式，host与ip必须与push服务中配置的一样，pushtoken是[变量](#var)的值。
   host:ip可以是[xtcp](https://github.com/xpwu/go-xnet) 中支持的任何地址协议
+* 直接 require 本模块，使用pushc.PushData(xxx) or pushc.Close(xxx) 即可
 
 ## websocket
 * Origin 设置允许发起websocket请求的源，如果源与请求的Host相同时，无论Origin设置什么都允许访问。  
