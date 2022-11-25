@@ -17,7 +17,6 @@ import (
   "strings"
   "sync"
   "time"
-  "unsafe"
 )
 
 func Start() {
@@ -202,10 +201,10 @@ func handler(upgrader *websocket.Upgrader,
 
     fConn := newConn(ctx, conn, s)
 
-    logger.PushPrefix(fmt.Sprintf("tcp conn(%x) from %s websocket(conn_id=%s)",
-      unsafe.Pointer(conn), conn.RemoteAddr().String(), fConn.Id()))
+    logger.PushPrefix(fmt.Sprintf("websocket conn(id=%s) from %s,",
+      fConn.Id().String(), conn.RemoteAddr().String()))
 
-    logger.Debug("new connection")
+    logger.Info("new connection")
 
     defer func() {
       if r := recover(); r != nil {

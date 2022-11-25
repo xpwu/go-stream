@@ -4,7 +4,7 @@ import (
   "encoding/binary"
   "errors"
   "fmt"
-  conn2 "github.com/xpwu/go-stream/conn"
+  "github.com/xpwu/go-xnet/connid"
   "github.com/xpwu/go-xnet/xtcp"
   "io"
   "time"
@@ -41,7 +41,7 @@ lencontent protocol:
        length: 4 bytes, net order; length=sizeof(content)+4; length=0 => heartbeat
 */
 
-func handshake(conn *xtcp.Conn, s* server, id conn2.Id) error {
+func handshake(conn *xtcp.Conn, s* server, id connid.Id) error {
   buffer := make([]byte, 6)
   err := conn.SetReadDeadline(time.Now().Add(s.FrameTimeout_s))
   if err != nil {

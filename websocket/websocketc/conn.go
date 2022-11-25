@@ -5,6 +5,7 @@ import (
   "github.com/gorilla/websocket"
   "github.com/xpwu/go-log/log"
   conn2 "github.com/xpwu/go-stream/conn"
+  "github.com/xpwu/go-xnet/connid"
   "net"
   "sync"
   "time"
@@ -18,7 +19,7 @@ type conn struct {
   cancelF context.CancelFunc
   closed  bool
   once    sync.Once
-  id      conn2.Id
+  id      connid.Id
 }
 
 func newConn(ctx context.Context, c *websocket.Conn) *conn {
@@ -26,7 +27,7 @@ func newConn(ctx context.Context, c *websocket.Conn) *conn {
   ret := &conn{
     c:  c,
     mu: make(chan struct{}, 1),
-    id: 0,
+    id: connid.New(),
   }
   ret.ctx, ret.cancelF = context.WithCancel(ctx)
 
@@ -37,7 +38,7 @@ func (c *conn) GetVar(name string) string {
   return ""
 }
 
-func (c *conn) Id() conn2.Id {
+func (c *conn) Id() connid.Id {
   return c.id
 }
 

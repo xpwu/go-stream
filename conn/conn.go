@@ -1,35 +1,11 @@
 package conn
 
 import (
-	"fmt"
 	"github.com/xpwu/go-var/vari"
+	"github.com/xpwu/go-xnet/connid"
 	"net"
-	"strconv"
 	"sync"
-	"time"
 )
-
-type Id uint64
-
-func (id Id) String() string {
-	return fmt.Sprintf("%x", uint64(id))
-}
-
-func ResumeIdFrom(str string) (id Id, err error) {
-	i, err := strconv.ParseUint(str, 16, 64)
-	if err != nil {
-		return
-	}
-
-	id = Id(i)
-	return
-}
-
-// 用过即废，尽最大可能不重复id，防止窜连接
-func NewId(sequence uint32) Id {
-	t := uint64(time.Now().Unix())
-	return Id((t << 32) + uint64(sequence))
-}
 
 type ExtraValue interface {
 	UnInit()
@@ -87,7 +63,7 @@ func (b *Base) Close() {
 type Conn interface {
 	extraValueInterface
 	vari.VarObject
-	Id() Id
+	Id() connid.Id
 	// 所有的实现中，需要满足 multiple goroutines 的同时调用
 	Write(buffers net.Buffers) error
 
@@ -107,7 +83,7 @@ func DelConn(conn Conn) {
 	connMap.Delete(conn.Id())
 }
 
-func GetConn(id Id) (conn Conn, ok bool) {
+func GetConn(id connid.Id) (conn Conn, ok bool) {
 	res, ok := connMap.Load(id)
 	if ok {
 		conn = res.(Conn)

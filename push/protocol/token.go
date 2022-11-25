@@ -3,18 +3,19 @@ package protocol
 import (
   "errors"
   "fmt"
+  "github.com/xpwu/go-xnet/connid"
   "strings"
 )
 
 type Token struct {
-  ConnId     string // connection id
+  ConnId connid.Id // connection id
   HostId string
 }
 
 const TokenLen = 32
 
 func (t *Token) String() string {
-  id := "_" + t.ConnId
+  id := "_" + t.ConnId.String()
   return t.HostId[:TokenLen-len(id)] + id
 }
 
@@ -28,6 +29,8 @@ func ResumeToken(oriData []byte, hostId string) (tk Token, err error) {
     return
   }
 
-  return Token{sp[1], hostId}, nil
+  id,err := connid.ResumeIdFrom(sp[1])
+
+  return Token{id, hostId}, err
 }
 

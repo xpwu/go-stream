@@ -49,6 +49,8 @@ func (s *server) checkValue(logger *log.Logger) {
 	for i, origin := range s.Origin {
 		s.OriginRegex[i] = regexp.MustCompile(escapeReg(origin))
 	}
+
+	logger.PopPrefix()
 }
 
 var configValue = &config{

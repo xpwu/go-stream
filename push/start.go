@@ -23,7 +23,7 @@ func Start() {
   hostId = hex.EncodeToString(m5[:])
 
   conn.RegisterVar("pushtoken", func(conn conn.Conn) string {
-    token := protocol.Token{HostId: hostId, ConnId: conn.Id().String()}
+    token := protocol.Token{HostId: hostId, ConnId: conn.Id()}
     return token.String()
   })
 
@@ -59,8 +59,7 @@ func runServer(s *server) {
     ctx, logger := log.WithCtx(conn.Context())
     ctx, cancelF := context.WithCancel(ctx)
 
-    logger.PushPrefix(fmt.Sprintf("push(conn_id=%s)", conn.Id()))
-    logger.Debug(fmt.Sprintf("new connection from %s", conn.RemoteAddr()))
+    logger.Info("new connection")
 
     // read request
     request := read(ctx, conn)
@@ -178,22 +177,19 @@ func processRequest(ctx context.Context, s *server, r *protocol.Request, end cha
     logger.Error(err)
     end <- protocol.NewResponse(r, protocol.HostNameErr).Write()
   }
-  cid, err := conn.ResumeIdFrom(token.ConnId)
-  if err != nil {
-    logger.Error(err)
-    end <- protocol.NewResponse(r, protocol.TokenNotExist).Write()
-  }
 
-  con, ok := conn.GetConn(cid)
+  con, ok := conn.GetConn(token.ConnId)
   if !ok {
     logger.Error(fmt.Sprintf("can not find conn with id(%v)", token))
     end <- protocol.NewResponse(r, protocol.TokenNotExist).Write()
+    return
   }
 
   if r.SubProtocol == s.CloseSubProtocolId {
-    logger.Debug(fmt.Sprintf("close subprotocol. will close conn(id=%s)", con.Id()))
-    con.CloseWith(fmt.Errorf("close subprotocol. will close conn(id=%s)", con.Id()))
+    logger.Debug(fmt.Sprintf("close subprotocol. will close conn(id=%s). ", con.Id()))
+    con.CloseWith(fmt.Errorf("close subprotocol. will close conn(id=%s). ", con.Id()))
     end <- protocol.NewResponse(r).Write()
+    return
   }
 
   // 写给客户端
@@ -204,15 +200,17 @@ func processRequest(ctx context.Context, s *server, r *protocol.Request, end cha
   clientRes := fakehttp.NewResponseWithPush(con, pushId.ToBytes(), r.Data)
   if err = clientRes.Write(); err != nil {
     logger.Error(fmt.Sprintf("write push data to client conn(id=%s) err. ", con.Id()), err)
-    con.CloseWith(fmt.Errorf("write push data from push conn(id=%s) err, %v. Will close this connection(id=%s)",
+    con.CloseWith(fmt.Errorf("write push data from push conn(id=%s) err, %v. Will close this connection(id=%s). ",
       r.Conn.Id(), err, con.Id()))
 
     end <- protocol.NewResponse(r, protocol.ServerInternalErr).Write()
+    return
   }
 
   // 根据配置要求，0 表示不等待ack
   if s.AckTimeout == 0 {
     end <- protocol.NewResponse(r).Write()
+    return
   }
 
   // 写上游服务器
@@ -226,6 +224,8 @@ func processRequest(ctx context.Context, s *server, r *protocol.Request, end cha
     }
     if !ok {
       end <- protocol.NewResponse(r, protocol.ServerInternalErr).Write()
+    } else {
+      end <- protocol.NewResponse(r).Write()
     }
   case <- timer.C:
     pushId.CancelWaitingAck()
@@ -235,5 +235,4 @@ func processRequest(ctx context.Context, s *server, r *protocol.Request, end cha
     end <- protocol.NewResponse(r, protocol.ServerInternalErr).Write()
   }
 
-  end <- protocol.NewResponse(r).Write()
 }

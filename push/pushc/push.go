@@ -81,15 +81,15 @@ func Close(ctx context.Context, pushUrl string) error {
 func PushData(ctx context.Context, pushUrl string, data []byte, timeout time.Duration) error {
 	ctx, logger := log.WithCtx(ctx)
 
-	logger.PushPrefix(fmt.Sprintf("push data(len=%d) to %s, ", len(data), pushUrl))
+	logger.PushPrefix(fmt.Sprintf("push data(len=%d) to %s,", len(data), pushUrl))
 
-	logger.Debug("start. ")
+	logger.Info("start. ")
 	err := send(ctx, pushUrl, dataSubProtocolId, data, timeout)
 	if err != nil {
 		logger.Error("error, ", err)
 		return err
 	}
-	logger.Debug("end. ")
+	logger.Info("end. ")
 	return nil
 }
 

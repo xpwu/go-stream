@@ -29,8 +29,10 @@ var (
   clients = sync.Map{}
 )
 
-func sendTo(ctx context.Context, addr string, data []byte, token string, subP byte, timeout time.Duration) (res *protocol.Response, err error) {
-  c, _ := clients.LoadOrStore(addr, &client{
+func sendTo(ctx context.Context, addr string, data []byte, token string, subP byte,
+  timeout time.Duration) (res *protocol.Response, err error) {
+
+  actual, loaded := clients.LoadOrStore(addr, &client{
     conn:       nil,
     connClosed: nil,
     mutex:      sync.RWMutex{},
@@ -39,31 +41,49 @@ func sendTo(ctx context.Context, addr string, data []byte, token string, subP by
     sequence:   0,
     mqMu:       sync.Mutex{},
   })
+  c := actual.(*client)
+  if !loaded {
+    cctx, logger := log.WithCtx(context.TODO())
+    c.ctx = cctx
+    logger.PushPrefix(fmt.Sprintf("push client(connect to %s).", addr))
+  }
 
-  return c.(*client).send(ctx, data, token, subP, timeout)
+  return c.send(ctx, data, token, subP, timeout)
 }
 
 func (c *client) send(ctx context.Context, data []byte, token string, subP byte, timeout time.Duration) (res *protocol.Response, err error) {
   timer := time.NewTimer(timeout)
   _, logger := log.WithCtx(c.ctx)
+  logger.PushPrefix(fmt.Sprintf("push to conn(token=%s). ", token))
 
   res, err = c.sendOnce(ctx, data, token, subP, timer)
   if err == timeoutE || err == nil || ctx.Err() != nil {
+    if err != timeoutE && !timer.Stop() {
+      <-timer.C
+    }
     return
   }
 
   // 非超时情况，重试一次。需要重试的原因主要是可能在发送的时候，连接断了
-  logger.PushPrefix("try again")
+  logger.PushPrefix("try again, ")
   res, err = c.sendOnce(ctx, data, token, subP, timer)
-  timer.Stop()
+  if err != timeoutE && !timer.Stop() {
+    <-timer.C
+  }
   return
 }
 
-func (c *client) sendOnce(ctx context.Context, data []byte, token string, subP byte, timer *time.Timer) (res *protocol.Response, err error) {
+func (c *client) sendOnce(ctx context.Context, data []byte, token string, subP byte,
+  timer *time.Timer) (res *protocol.Response, err error) {
+
   _, logger := log.WithCtx(c.ctx)
-  logger.PushPrefix("send once")
 
   conn, connClosed, err := c.connect()
+  if err != nil {
+    logger.Error(err)
+    return nil, err
+  }
+  logger.PushPrefix(fmt.Sprintf("connid=%s", conn.Id().String()))
 
   resCh := make(chan *protocol.Response)
   seq := c.addChan(resCh)
@@ -117,21 +137,20 @@ func (c *client) connect() (xConn *xtcp.Conn, connClosed chan struct{}, err erro
     return c.conn, c.connClosed, nil
   }
 
-  ctx, logger := log.WithCtx(context.Background())
-  logger.PushPrefix("connect to " + c.addr)
+  ctx, logger := log.WithCtx(c.ctx)
+  logger.PushPrefix("connecting... ")
 
   conn, err := xtcp.Dial(ctx, "tcp", c.addr)
   if err != nil {
     logger.Error(err)
     return nil, nil, err
   }
+  logger.PopPrefix()
 
   c.conn = xtcp.NewConn(ctx, conn)
   c.connClosed = make(chan struct{})
 
-  // 设置ctx  logger
-  c.ctx, logger = log.WithCtx(context.Background())
-  logger.PushPrefix(fmt.Sprintf("conneted(id:%s) to addr(%s)", c.conn.Id(), c.addr))
+  logger.Debug(fmt.Sprintf("connected(id:%s), ", c.conn.Id()))
 
   c.read(c.conn, c.connClosed)
 
@@ -178,14 +197,14 @@ func (c *client) addChan(ch chan *protocol.Response) uint32 {
 
 func (c *client) read(conn *xtcp.Conn, connClosed chan struct{}) {
   _, logger := log.WithCtx(c.ctx)
-  logger.PushPrefix("read response from " + conn.Id())
+  logger.PushPrefix(fmt.Sprintf("read response from conn(id=%s),", conn.Id().String()))
   go func() {
     for {
-      logger.Debug("read...")
+      logger.Debug("read... ")
       r, err := protocol.NewResByConn(conn, time.Time{})
       if err != nil {
         logger.Error(err)
-        logger.Info("close connect " + conn.Id())
+        logger.Info("close connect " + conn.Id().String())
         c.close(conn, connClosed)
         break
       }

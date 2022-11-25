@@ -2,15 +2,15 @@ package websocketc
 
 import (
 	"context"
-  "encoding/binary"
-  "encoding/json"
+	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/xpwu/go-log/log"
 	"github.com/xpwu/go-reqid/reqid"
-  conn2 "github.com/xpwu/go-stream/conn"
-  "github.com/xpwu/go-stream/fakehttp"
+	"github.com/xpwu/go-stream/fakehttp"
+	"github.com/xpwu/go-xnet/connid"
 	"strings"
 	"sync"
 )
@@ -41,7 +41,7 @@ HeartBeat_s | FrameTimeout_s | MaxConcurrent | MaxBytes | connect id
    MaxBytes: 4 bytes, net order
    connect id: 8 bytes, net order
 */
-func (c *Client) readHandshake(conn *websocket.Conn) (peerConnectionID conn2.Id, err error) {
+func (c *Client) readHandshake(conn *websocket.Conn) (peerConnectionID connid.Id, err error) {
   // read handshake
   _, m, err := conn.ReadMessage()
   if err != nil {
@@ -55,7 +55,7 @@ func (c *Client) readHandshake(conn *websocket.Conn) (peerConnectionID conn2.Id,
   m = m[1:]
   c.maxBytes = binary.BigEndian.Uint32(m[0:])
   m = m[4:]
-  return conn2.Id(binary.BigEndian.Uint64(m)), nil
+  return connid.Id(binary.BigEndian.Uint64(m)), nil
 }
 
 func (c *Client) connect() error {

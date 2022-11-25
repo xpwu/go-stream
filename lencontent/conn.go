@@ -3,14 +3,12 @@ package lencontent
 import (
   "github.com/xpwu/go-log/log"
   conn2 "github.com/xpwu/go-stream/conn"
+  "github.com/xpwu/go-xnet/connid"
   "github.com/xpwu/go-xnet/xtcp"
   "net"
   "sync"
-  "sync/atomic"
   "time"
 )
-
-var sequence uint32 = 0
 
 type conn struct {
   conn2.Base
@@ -18,7 +16,7 @@ type conn struct {
   heartBeat  *time.Timer
   server     *server
   mu         sync.Mutex
-  id         conn2.Id
+  id         connid.Id
   concurrent chan struct{}
 }
 
@@ -28,7 +26,7 @@ func newConn(tcpConn *xtcp.Conn, s *server) *conn {
   ret := &conn{
     tcpC:       tcpConn,
     server:     s,
-    id:         conn2.NewId(atomic.AddUint32(&sequence, 1)),
+    id:         connid.New(),
     concurrent: make(chan struct{}, s.MaxConcurrentPerConnection),
   }
 
@@ -80,7 +78,7 @@ func (c *conn) GetVar(name string) string {
   return ""
 }
 
-func (c *conn) Id() conn2.Id {
+func (c *conn) Id() connid.Id {
   return c.id
 }
 

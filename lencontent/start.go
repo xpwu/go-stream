@@ -42,8 +42,7 @@ func runServer(s *server) {
     freqConn := newConn(conn, s)
     defer freqConn.CloseWith(nil)
 
-    logger.PushPrefix(fmt.Sprintf("lencontent(conn_id=%s)", freqConn.Id()))
-    logger.Debug("start processing new connection")
+    logger.Debug("new connection")
 
     if err := handshake(conn, s, freqConn.Id()); err != nil {
       logger.Error(err)

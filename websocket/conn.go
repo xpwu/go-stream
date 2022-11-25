@@ -6,14 +6,12 @@ import (
   "github.com/gorilla/websocket"
   "github.com/xpwu/go-log/log"
   conn2 "github.com/xpwu/go-stream/conn"
+  "github.com/xpwu/go-xnet/connid"
   "github.com/xpwu/go-xnet/xtcp"
   "net"
   "sync"
-  "sync/atomic"
   "time"
 )
-
-var sequence uint32 = 0
 
 type conn struct {
   conn2.Base
@@ -24,7 +22,7 @@ type conn struct {
   closed     bool
   heartBeat  *time.Ticker
   once       sync.Once
-  id         conn2.Id
+  id         connid.Id
   concurrent chan struct{}
 }
 
@@ -40,7 +38,7 @@ func newConn(ctx context.Context, c *websocket.Conn, s *server) *conn {
     c:          c,
     mu:         make(chan struct{}, 1),
     heartBeat:  heartBeat,
-    id:         conn2.NewId(atomic.AddUint32(&sequence, 1)),
+    id:         connid.New(),
     concurrent: make(chan struct{}, s.MaxConcurrentPerConnection),
   }
 
@@ -81,7 +79,7 @@ func (c *conn) GetVar(name string) string {
   return ""
 }
 
-func (c *conn) Id() conn2.Id {
+func (c *conn) Id() connid.Id {
   return c.id
 }
 
