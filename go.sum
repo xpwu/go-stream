@@ -35,6 +35,8 @@ github.com/xpwu/go-xnet v0.0.0-20221121161837-2a055709e0e2 h1:Oy3/Ynazzi5FY1ruMr
 github.com/xpwu/go-xnet v0.0.0-20221121161837-2a055709e0e2/go.mod h1:uyI3T+FpSSBKPHn9TIhqCRVYm8jb6WYe+qo9DuQQ7jE=
 github.com/xpwu/go-xnet v0.0.0-20221125143209-aa60a74507ec h1:bthgTlFWTB4fB2bn0ezTv8s7qgRiM5REnPket+JeVao=
 github.com/xpwu/go-xnet v0.0.0-20221125143209-aa60a74507ec/go.mod h1:uyI3T+FpSSBKPHn9TIhqCRVYm8jb6WYe+qo9DuQQ7jE=
+github.com/xpwu/go-xnet v0.0.0-20221127125254-28191a96f28d h1:Z4uq736UlMjtOPILZJ8G2jbrlZ/kvMetgqLK27KTlk8=
+github.com/xpwu/go-xnet v0.0.0-20221127125254-28191a96f28d/go.mod h1:uyI3T+FpSSBKPHn9TIhqCRVYm8jb6WYe+qo9DuQQ7jE=
 golang.org/x/sync v0.0.0-20210220032951-036812b2e83c h1:5KslGYwFpkhGh+Q16bwMP3cOontH8FOep7tGV86Y7SQ=
 golang.org/x/sync v0.0.0-20210220032951-036812b2e83c/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

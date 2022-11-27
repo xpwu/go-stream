@@ -11,6 +11,7 @@ import (
   "github.com/xpwu/go-stream/fakehttp"
   "github.com/xpwu/go-stream/proxy"
   "github.com/xpwu/go-xnet/xhttp"
+  "github.com/xpwu/go-xnet/xtcp"
   "io"
   "net/http"
   "net/url"
@@ -62,9 +63,10 @@ func runServer(s *server) {
     ErrorLog: log.NewSysLog(logger, level.ERROR),
   }
 
-  err := xhttp.SeverAndBlock(ctx, httpServer, s.Net)
+  err := xhttp.SeverAndBlockWithName(ctx, httpServer, s.Net, "websocket")
 
   if err != nil {
+    _ = httpServer.Close()
     panic(err)
   }
 }
@@ -199,12 +201,13 @@ func handler(upgrader *websocket.Upgrader,
       return
     }
 
+    if underConn, ok := conn.UnderlyingConn().(*xtcp.Conn); ok {
+      ctx = underConn.Context()
+    }
     fConn := newConn(ctx, conn, s)
+    ctx,logger = log.WithCtx(fConn.context())
 
-    logger.PushPrefix(fmt.Sprintf("websocket conn(id=%s) from %s,",
-      fConn.Id().String(), conn.RemoteAddr().String()))
-
-    logger.Info("new connection")
+    logger.Debug("new connection")
 
     defer func() {
       if r := recover(); r != nil {
@@ -275,7 +278,7 @@ func handler(upgrader *websocket.Upgrader,
 
       conn2.TryConcurrent(fConn.ctx, fConn.concurrent)
 
-      logger.Debug(fmt.Sprintf("read request(addr=%p)", fhttpReq))
+      logger.Debug(fmt.Sprintf("read request(ptr=%p)", fhttpReq))
 
       go func() {
         proxy.Handler(ctx, fhttpReq, s.ProxyVar)

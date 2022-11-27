@@ -34,11 +34,19 @@ func newConn(ctx context.Context, c *websocket.Conn, s *server) *conn {
 
   ctx, logger := log.WithCtx(ctx)
 
+  id := connid.Id(0)
+  underConn, ok := c.UnderlyingConn().(*xtcp.Conn)
+  if ok {
+    id = underConn.Id()
+  } else {
+    id = connid.New()
+  }
+
   ret := &conn{
     c:          c,
     mu:         make(chan struct{}, 1),
     heartBeat:  heartBeat,
-    id:         connid.New(),
+    id:         id,
     concurrent: make(chan struct{}, s.MaxConcurrentPerConnection),
   }
 

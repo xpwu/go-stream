@@ -55,11 +55,11 @@ func runServer(s *server) {
       request := newRequest(conn, s)
       err := request.read()
       if err == io.EOF {
-        logger.Error("connection closed by peer ")
+        logger.Debug("connection closed by peer ")
         return
       }
       if err != nil {
-        logger.Error("read message error. ", err, ", will close connection")
+        logger.Debug("read message error. ", err, ", will close connection")
         return
       }
 
@@ -89,7 +89,7 @@ func runServer(s *server) {
       conn2.TryConcurrent(ctx, freqConn.concurrent)
       logger.Debug("new fake http request")
 
-      logger.Debug(fmt.Sprintf("read request(addr=%p)", fhttpReq))
+      logger.Debug(fmt.Sprintf("read request(ptr=%p)", fhttpReq))
 
       go func() {
         proxy.Handler(ctx, fhttpReq, s.ProxyVar)
@@ -101,7 +101,7 @@ func runServer(s *server) {
   tcpServer := &xtcp.Server{
     Net:     s.Net,
     Handler: handler,
-    Name:    "LenContent",
+    Name:    "lencontent",
   }
 
   tcpServer.ServeAndBlock()

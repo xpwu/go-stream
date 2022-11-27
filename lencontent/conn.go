@@ -16,7 +16,6 @@ type conn struct {
   heartBeat  *time.Timer
   server     *server
   mu         sync.Mutex
-  id         connid.Id
   concurrent chan struct{}
 }
 
@@ -26,7 +25,6 @@ func newConn(tcpConn *xtcp.Conn, s *server) *conn {
   ret := &conn{
     tcpC:       tcpConn,
     server:     s,
-    id:         connid.New(),
     concurrent: make(chan struct{}, s.MaxConcurrentPerConnection),
   }
 
@@ -79,7 +77,7 @@ func (c *conn) GetVar(name string) string {
 }
 
 func (c *conn) Id() connid.Id {
-  return c.id
+  return c.tcpC.Id()
 }
 
 func (c *conn) Write(buffers net.Buffers) error {
@@ -96,10 +94,6 @@ func (c *conn) Write(buffers net.Buffers) error {
 }
 
 func (c *conn) CloseWith(err error) {
-  if err != nil {
-    _, logger := log.WithCtx(c.tcpC.Context())
-    logger.Error(err)
-  }
 
   c.mu.Lock()
   if c.heartBeat != nil {
@@ -110,5 +104,12 @@ func (c *conn) CloseWith(err error) {
   c.mu.Unlock()
 
   conn2.DelConn(c)
+
+  _, logger := log.WithCtx(c.tcpC.Context())
+  if err != nil {
+    logger.Error(err)
+  }
+  logger.Debug("close connection")
+
   _ = c.tcpC.Close()
 }

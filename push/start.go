@@ -59,7 +59,7 @@ func runServer(s *server) {
     ctx, logger := log.WithCtx(conn.Context())
     ctx, cancelF := context.WithCancel(ctx)
 
-    logger.Info("new connection")
+    logger.Debug("new connection")
 
     // read request
     request := read(ctx, conn)
@@ -186,8 +186,8 @@ func processRequest(ctx context.Context, s *server, r *protocol.Request, end cha
   }
 
   if r.SubProtocol == s.CloseSubProtocolId {
-    logger.Debug(fmt.Sprintf("close subprotocol. will close conn(id=%s). ", con.Id()))
-    con.CloseWith(fmt.Errorf("close subprotocol. will close conn(id=%s). ", con.Id()))
+    logger.Info(fmt.Sprintf("close subprotocol. will close conn(id=%s). ", con.Id()))
+    con.CloseWith(nil)
     end <- protocol.NewResponse(r).Write()
     return
   }
