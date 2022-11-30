@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"github.com/xpwu/go-log/log"
+	"github.com/xpwu/go-stream/push/core"
 	"github.com/xpwu/go-xnet/xtcp"
 	"io"
 	"time"
@@ -27,43 +28,16 @@ Request:
      data: subprotocol Response data
 */
 
-type state byte
-
-const (
-	Success state = iota
-	HostNameErr
-	TokenNotExist
-	ServerInternalErr
-	Timeout
-)
-
-func StateText(s state) string {
-	switch s {
-	case Success:
-		return "Success"
-	case HostNameErr:
-		return "HostNameErr"
-	case TokenNotExist:
-		return "TokenNotExist"
-	case ServerInternalErr:
-		return "ServerInternalErr"
-	case Timeout:
-		return "Timeout"
-	default:
-		return "Unknown"
-	}
-}
-
 type Response struct {
 	R     *Request
-	State state
+	State core.State
 	// Data     []byte  暂时无需回传数据
 }
 
-func NewResponse(request *Request, st ...state) *Response {
+func NewResponse(request *Request, st ...core.State) *Response {
 	res := &Response{
 		R:     request,
-		State: Success,
+		State: core.Success,
 	}
 
 	if len(st) == 1 {
@@ -118,7 +92,7 @@ func NewResByConn(c *xtcp.Conn, t time.Time) (res *Response, err error) {
 		logger.Error(err)
 		return
 	}
-	res.State = state(s[0])
+	res.State = core.State(s[0])
 	_ = c.SetReadDeadline(time.Time{})
 
 	return

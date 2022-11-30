@@ -2,30 +2,16 @@ package push
 
 import (
   "context"
-  "crypto/md5"
-  "encoding/hex"
   "fmt"
   "github.com/xpwu/go-log/log"
-  "github.com/xpwu/go-reqid/reqid"
-  "github.com/xpwu/go-stream/conn"
-  "github.com/xpwu/go-stream/fakehttp"
+  "github.com/xpwu/go-stream/push/core"
   "github.com/xpwu/go-stream/push/protocol"
   "github.com/xpwu/go-xnet/xtcp"
   "io"
   "time"
 )
 
-var hostId = ""
-
 func Start() {
-
-  m5 := md5.Sum([]byte(reqid.RandomID()))
-  hostId = hex.EncodeToString(m5[:])
-
-  conn.RegisterVar("pushtoken", func(conn conn.Conn) string {
-    token := protocol.Token{HostId: hostId, ConnId: conn.Id()}
-    return token.String()
-  })
 
   for _, s := range configValue.Servers {
     if !s.Net.Listen.On() {
@@ -170,69 +156,27 @@ func read(ctx context.Context, conn *xtcp.Conn) <-chan *protocol.Request {
 }
 
 func processRequest(ctx context.Context, s *server, r *protocol.Request, end chan error) {
-  ctx, logger := log.WithCtx(ctx)
 
-  token, err := protocol.ResumeToken(r.Token, hostId)
-  if err != nil {
-    logger.Error(err)
-    end <- protocol.NewResponse(r, protocol.HostNameErr).Write()
-  }
-
-  con, ok := conn.GetConn(token.ConnId)
-  if !ok {
-    logger.Error(fmt.Sprintf("can not find conn with id(%v)", token))
-    end <- protocol.NewResponse(r, protocol.TokenNotExist).Write()
+  clientConn, st := core.GetClientConn(ctx, string(r.Token))
+  if st != core.Success {
+    end <- protocol.NewResponse(r, st).Write()
     return
   }
 
   if r.SubProtocol == s.CloseSubProtocolId {
-    logger.Info(fmt.Sprintf("close subprotocol. will close conn(id=%s). ", con.Id()))
-    con.CloseWith(nil)
+   core.CloseClientConn(ctx, clientConn)
     end <- protocol.NewResponse(r).Write()
-    return
-  }
-
-  // 写给客户端
-  logger.Debug(fmt.Sprintf("push data(len=%d) to client connection(conn_id=%s)", len(r.Data), con.Id()))
-  pushId := fakehttp.GetPushID(con)
-  // 先准备好ack的接收
-  ch := pushId.WaitAck()
-  clientRes := fakehttp.NewResponseWithPush(con, pushId.ToBytes(), r.Data)
-  if err = clientRes.Write(); err != nil {
-    logger.Error(fmt.Sprintf("write push data to client conn(id=%s) err. ", con.Id()), err)
-    con.CloseWith(fmt.Errorf("write push data from push conn(id=%s) err, %v. Will close this connection(id=%s). ",
-      r.Conn.Id(), err, con.Id()))
-
-    end <- protocol.NewResponse(r, protocol.ServerInternalErr).Write()
     return
   }
 
   // 根据配置要求，0 表示不等待ack
-  if s.AckTimeout == 0 {
-    end <- protocol.NewResponse(r).Write()
-    return
+  cancel := context.CancelFunc(func() {})
+  if s.AckTimeout != 0 {
+    ctx,cancel = context.WithTimeout(ctx, s.AckTimeout)
   }
 
-  // 写上游服务器
-
-  timer := time.NewTimer(s.AckTimeout)
-
-  select {
-  case _,ok := <- ch:
-    if !timer.Stop() {
-      <-timer.C
-    }
-    if !ok {
-      end <- protocol.NewResponse(r, protocol.ServerInternalErr).Write()
-    } else {
-      end <- protocol.NewResponse(r).Write()
-    }
-  case <- timer.C:
-    pushId.CancelWaitingAck()
-    logger.Warning("wait client ack timeout")
-    end <- protocol.NewResponse(r, protocol.Timeout).Write()
-  case <-ctx.Done():
-    end <- protocol.NewResponse(r, protocol.ServerInternalErr).Write()
-  }
+  st = core.PushDataToClient(ctx, clientConn, r.Data)
+  cancel()
+  end <- protocol.NewResponse(r, st).Write()
 
 }

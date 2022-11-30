@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xpwu/go-log/log"
+	"github.com/xpwu/go-stream/push/core"
 	"github.com/xpwu/go-stream/push/protocol"
 	"strings"
 	"time"
@@ -41,7 +42,7 @@ func send(ctx context.Context, pushUrl string, sub byte, data []byte, timeout ti
 	url := pushUrl[:index]
 	token := pushUrl[index+1:]
 
-	if len(token) != protocol.TokenLen {
+	if len(token) != core.TokenLen {
 		err = fmt.Errorf("len token(%s) error", token)
 		logger.Error(err)
 		return

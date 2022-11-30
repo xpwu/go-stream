@@ -3,6 +3,7 @@ package protocol
 import (
 	"encoding/binary"
 	"errors"
+	"github.com/xpwu/go-stream/push/core"
 	"github.com/xpwu/go-xnet/xtcp"
 	"io"
 	"time"
@@ -47,7 +48,7 @@ func (r *Request) Read(until time.Time) (err error) {
 		return
 	}
 
-	b := make([]byte, SequenceLen+TokenLen+1+4)
+	b := make([]byte, SequenceLen+core.TokenLen+1+4)
 
 	_, err = io.ReadFull(r.Conn, b)
 	if err != nil {
@@ -57,8 +58,8 @@ func (r *Request) Read(until time.Time) (err error) {
 	r.Sequence = b[0:4]
 	b = b[4:]
 
-	r.Token = b[:TokenLen]
-	b = b[TokenLen:]
+	r.Token = b[:core.TokenLen]
+	b = b[core.TokenLen:]
 
 	r.SubProtocol = b[0]
 	b = b[1:]

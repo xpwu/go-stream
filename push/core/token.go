@@ -1,4 +1,4 @@
-package protocol
+package core
 
 import (
   "errors"
@@ -19,8 +19,7 @@ func (t *Token) String() string {
   return t.HostId[:TokenLen-len(id)] + id
 }
 
-func ResumeToken(oriData []byte, hostId string) (tk Token, err error) {
-  str := string(oriData)
+func ResumeToken(str string, hostId string) (tk Token, err error) {
   sp := strings.Split(str, "_")
 
   if len(sp) != 2 || !strings.HasPrefix(hostId, sp[0]) {
