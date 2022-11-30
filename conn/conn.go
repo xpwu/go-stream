@@ -1,6 +1,7 @@
 package conn
 
 import (
+	"context"
 	"github.com/xpwu/go-var/vari"
 	"github.com/xpwu/go-xnet/connid"
 	"net"
@@ -69,6 +70,8 @@ type Conn interface {
 
 	// 所有的写将中断，并返回错误
 	CloseWith(err error)
+
+	Context() context.Context
 }
 
 var (

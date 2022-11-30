@@ -205,7 +205,7 @@ func handler(upgrader *websocket.Upgrader,
       ctx = underConn.Context()
     }
     fConn := newConn(ctx, conn, s)
-    ctx,logger = log.WithCtx(fConn.context())
+    ctx,logger = log.WithCtx(fConn.Context())
 
     logger.Debug("new connection")
 

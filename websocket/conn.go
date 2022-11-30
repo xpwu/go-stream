@@ -132,6 +132,6 @@ func (c *conn) CloseWith(err error) {
   })
 }
 
-func (c *conn) context() context.Context {
+func (c *conn) Context() context.Context {
   return c.ctx
 }

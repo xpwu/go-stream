@@ -1,6 +1,7 @@
 package lencontent
 
 import (
+  "context"
   "github.com/xpwu/go-log/log"
   conn2 "github.com/xpwu/go-stream/conn"
   "github.com/xpwu/go-xnet/connid"
@@ -112,4 +113,8 @@ func (c *conn) CloseWith(err error) {
   logger.Debug("close connection")
 
   _ = c.tcpC.Close()
+}
+
+func (c *conn) Context() context.Context {
+  return c.tcpC.Context()
 }
