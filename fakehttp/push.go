@@ -86,6 +86,9 @@ func (p *PushID) CancelWaitingAck() {
     return
   }
 
-  n.(*waitQ).toMap().Delete(p.Value)
+	ch,ok := n.(*waitQ).toMap().LoadAndDelete(p.Value)
+	if ok {
+		close(ch.(chan struct{}))
+	}
 }
 
