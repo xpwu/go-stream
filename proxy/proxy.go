@@ -9,7 +9,11 @@ type Proxy interface {
   Do(ctx context.Context, request *fakehttp.Request) *fakehttp.Response
 }
 
-func NewProxy(conf *ConfigVar) Proxy {
-  //compileConf()
-  return newHttp(conf)
-}
+// 开发者可自行设定 Proxy Creator
+
+var Creator func(conf *ConfigVar) Proxy = NewHttp
+
+//func NewProxy(conf *ConfigVar) Proxy {
+//  //compileConf()
+//  return NewHttp(conf)
+//}

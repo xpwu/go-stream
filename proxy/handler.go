@@ -18,7 +18,8 @@ func Handler(ctx context.Context, request *fakehttp.Request, conf *ConfigVar) {
     }
   }()
 
-  pxy := NewProxy(conf)
+  //pxy := NewProxy(conf)
+  pxy := Creator(conf)
   if _, ok := ctx.Deadline(); !ok {
     ctxC, cancel := context.WithTimeout(ctx, 30*time.Second)
     ctx = ctxC
