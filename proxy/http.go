@@ -16,7 +16,7 @@ type httpP struct {
   conf *ConfigVar
 }
 
-func newHttp(conf *ConfigVar) Proxy {
+func NewHttp(conf *ConfigVar) Proxy {
   return &httpP{conf: conf}
 }
 
