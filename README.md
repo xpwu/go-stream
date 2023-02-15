@@ -48,6 +48,9 @@ TLS 是否使用TLS, 如果设置为true，则必须设置TlsFile，使用PEM格
 ## client
 对应的client sdk 在 [这儿](https://github.com/xpwu/streamclient) 
 
+## go-client
+go版本的client与push sdk 在 [这儿](https://github.com/xpwu/go-streamclient)
+
 ## sever
 使用此库实现的独立服务在 [这儿](https://github.com/xpwu/streamserver)
 
