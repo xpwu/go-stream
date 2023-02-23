@@ -41,7 +41,7 @@ lencontent protocol:
        length: 4 bytes, net order; length=sizeof(content)+4; length=0 => heartbeat
 */
 
-func handshake(conn *xtcp.Conn, s* server, id connid.Id) error {
+func handshake(conn *xtcp.Conn, s *server, id connid.Id) error {
   buffer := make([]byte, 6)
   err := conn.SetReadDeadline(time.Now().Add(s.FrameTimeout_s))
   if err != nil {
@@ -72,16 +72,16 @@ func handshake(conn *xtcp.Conn, s* server, id connid.Id) error {
   binary.BigEndian.PutUint16(res, uint16(s.HeartBeat_s/time.Second))
 
   if version == 1 {
-    _,err = conn.WriteBuffers([][]byte{res})
+    _, err = conn.WriteBuffers([][]byte{res})
     return err
   }
 
-  res2 := make([]byte, 1 + 1 + 4 + 8)
-  res2[0] = byte(s.FrameTimeout_s/time.Second)
+  res2 := make([]byte, 1+1+4+8)
+  res2[0] = byte(s.FrameTimeout_s / time.Second)
   res2[1] = byte(s.MaxConcurrentPerConnection)
   binary.BigEndian.PutUint32(res2[2:], s.MaxBytesPerFrame)
   binary.BigEndian.PutUint64(res2[6:], uint64(id))
-  _,err = conn.WriteBuffers([][]byte{res, res2})
+  _, err = conn.WriteBuffers([][]byte{res, res2})
 
   return err
 }
@@ -93,7 +93,7 @@ type request struct {
 }
 
 func newRequest(c *xtcp.Conn, s *server) *request {
-  return &request{conn: c, server:s}
+  return &request{conn: c, server: s}
 }
 
 func (r *request) read() (err error) {
@@ -114,6 +114,10 @@ func (r *request) read() (err error) {
   }
   if length > r.server.MaxBytesPerFrame {
     return fmt.Errorf("data's length must be less than %d Bytes", r.server.MaxBytesPerFrame)
+  }
+
+  if length <= 4 {
+    return fmt.Errorf("data's length must be more than 4 Bytes")
   }
 
   r.data = make([]byte, length-4)

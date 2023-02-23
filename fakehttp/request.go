@@ -66,6 +66,12 @@ func NewRequest(conn conn.Conn, data []byte) (req *Request, err error) {
 		Header: make(map[string]string),
 	}
 
+	// must have reqid + header-end-flag
+	if len(data) < 5 {
+		return nil, fmt.Errorf("error fakehttp request. the len of data must be more than 5, but be %d",
+			len(data))
+	}
+
 	start := 0
 
 	req.ReqId = data[start:4]
