@@ -88,8 +88,9 @@ func NewResponseWithFailed(request *Request, err error) *Response {
 	}
 }
 
-func NewResponseWithStream(data []byte) *Response {
+func NewResponseWithStream(conn conn.Conn, data []byte) *Response {
 	res := &Response{}
+	res.conn = conn
 	res.reqId = data[:ReqIDLen]
 	res.status = data[ReqIDLen]
 	res.data = data[ReqIDLen+1:]

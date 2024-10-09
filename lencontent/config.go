@@ -50,6 +50,10 @@ func (s *server) checkValue(logger *log.Logger) {
 		s.FrameTimeout_s = 10
 	}
 	s.FrameTimeout_s *= time.Second
+
+	if s.MaxBytesPerFrame < 100 {
+		s.MaxBytesPerFrame = 100
+	}
 }
 
 var configValue = &config{

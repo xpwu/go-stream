@@ -48,7 +48,8 @@ content protocol:
 */
 
 const (
-	ReqIDLen = 4
+	ReqIDLen     = 4
+	ReqNoLoadLen = ReqIDLen
 )
 
 type Request struct {

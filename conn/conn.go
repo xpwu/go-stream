@@ -25,7 +25,7 @@ type extraValueInterface interface {
 type Base sync.Map
 
 func (b *Base) Load(i interface{}) (ExtraValue, bool) {
-	v,ok := ((*sync.Map)(b)).Load(i)
+	v, ok := ((*sync.Map)(b)).Load(i)
 	return v.(ExtraValue), ok
 }
 
@@ -34,12 +34,12 @@ func (b *Base) Store(key interface{}, value ExtraValue) {
 }
 
 func (b *Base) LoadOrStore(key interface{}, value ExtraValue) (actual ExtraValue, loaded bool) {
-	v,ok := ((*sync.Map)(b)).LoadOrStore(key, value)
+	v, ok := ((*sync.Map)(b)).LoadOrStore(key, value)
 	return v.(ExtraValue), ok
 }
 
 func (b *Base) LoadAndDelete(key interface{}) (value ExtraValue, loaded bool) {
-	v,ok := ((*sync.Map)(b)).LoadAndDelete(key)
+	v, ok := ((*sync.Map)(b)).LoadAndDelete(key)
 	return v.(ExtraValue), ok
 }
 
@@ -61,14 +61,19 @@ func (b *Base) Close() {
 	})
 }
 
+type ServerConfig struct {
+	MaxBytesPerFrame uint32
+}
+
 type Conn interface {
 	extraValueInterface
 	vari.VarObject
 	Id() connid.Id
-	// 所有的实现中，需要满足 multiple goroutines 的同时调用
+	ServerConfig() ServerConfig
+	// Write 所有的实现中，需要满足 multiple goroutines 的同时调用
 	Write(buffers net.Buffers) error
 
-	// 所有的写将中断，并返回错误
+	// CloseWith 所有的写将中断，并返回错误
 	CloseWith(err error)
 
 	Context() context.Context
@@ -100,7 +105,8 @@ var (
 	mu     sync.RWMutex
 )
 
-// 静态注册，不能在服务过程中再注册
+// RegisterVar (静态注册，不能在服务过程中再注册)?
+// todo 确定此处是不是可以随时注册，并可以多次注册，只是在读取时，使用的是最近一次注册的结果
 func RegisterVar(name string, value func(conn Conn) string) {
 	mu.Lock()
 	varMap[name] = value

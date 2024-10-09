@@ -22,6 +22,7 @@ type server struct {
 	Proxy                      *proxy.Config
 	ProxyVar                   *proxy.ConfigVar `conf:"-"`
 	MaxConcurrentPerConnection int              `conf:"-"`
+	FrameTimeout_s             time.Duration    `conf:"-,unit:s"`
 	MaxBytesPerFrame           uint32           `conf:"-"`
 }
 
@@ -45,9 +46,21 @@ func (s *server) checkValue(logger *log.Logger) {
 	}
 	s.HeartBeat_s *= time.Second
 
+	if s.FrameTimeout_s > 255 {
+		logger.Warning("FrameTimeout_s must be less than 255! Use default value: 10")
+	}
+	if s.FrameTimeout_s > 255 || s.FrameTimeout_s <= 0 {
+		s.FrameTimeout_s = 10
+	}
+	s.FrameTimeout_s *= time.Second
+
 	s.OriginRegex = make([]*regexp.Regexp, len(s.Origin))
 	for i, origin := range s.Origin {
 		s.OriginRegex[i] = regexp.MustCompile(escapeReg(origin))
+	}
+
+	if s.MaxBytesPerFrame < 100 {
+		s.MaxBytesPerFrame = 100
 	}
 
 	logger.PopPrefix()
@@ -61,6 +74,7 @@ var configValue = &config{
 			Origin:                     []string{"*"},
 			Proxy:                      proxy.DefaultConfig(),
 			MaxConcurrentPerConnection: 5,
+			FrameTimeout_s:             10,
 			MaxBytesPerFrame:           4 * 1024 * 1024,
 		},
 	},
