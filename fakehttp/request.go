@@ -80,10 +80,22 @@ func NewRequest(conn conn.Conn, data []byte) (req *Request, err error) {
 	for start < len(data) && data[start] != 0 {
 		keyLen := int(data[start])
 		start += 1
+		// start+keyLen+1 : +1 是确保能安全读到 valLen := int(data[start])
+		if len(data) < start+keyLen+1 {
+			return nil,
+				fmt.Errorf("error fakehttp request. the len of data must be more than %d, but be %d",
+					start+keyLen+1, len(data))
+		}
 		key := string(data[start : start+keyLen])
 		start += keyLen
 		valLen := int(data[start])
 		start += 1
+		// start+valLen+1 : +1 是确保能下一次循环安全读到 data[start] != 0 或者 keyLen := int(data[start])
+		if len(data) < start+valLen+1 {
+			return nil,
+				fmt.Errorf("error fakehttp request. the len of data must be more than %d, but be %d",
+					start+valLen+1, len(data))
+		}
 		val := string(data[start : start+valLen])
 		start += valLen
 
@@ -168,7 +180,7 @@ func (r *Request) IsPushAck() (yes bool, err error) {
 	}
 
 	// no header; data must be push id
-	if len(r.Header) + len(r.Data)  != 4 {
+	if len(r.Header)+len(r.Data) != 4 {
 		return false, requestPErr
 	}
 
