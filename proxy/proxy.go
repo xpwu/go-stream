@@ -8,7 +8,7 @@ import (
 type HeaderFixedKey = string
 
 const (
-	MaxResponseKey HeaderFixedKey = "MaxResponseBytes"
+	MaxResponseKey HeaderFixedKey = "Stream-Max-Response"
 )
 
 // Proxy
