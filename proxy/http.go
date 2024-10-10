@@ -73,6 +73,12 @@ func (h *httpP) Do(ctx context.Context, request *fakehttp.Request) (fres *fakeht
 		_ = response.Body.Close()
 	}()
 
+	if response.ContentLength > int64(request.Conn.ServerConfig().MaxBytesPerFrame) {
+		logger.Error(fmt.Sprintf("response(size=%d) is too large!", response.ContentLength))
+		fres = fakehttp.NewResponseWithFailed(request, errors.New("response is too large"))
+		return
+	}
+
 	res, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		logger.Error(err)
