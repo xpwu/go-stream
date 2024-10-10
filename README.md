@@ -10,13 +10,20 @@ MaxConnections 设置最大连接数，-1表示不限制
 TLS 是否使用TLS, 如果设置为true，则必须设置TlsFile，使用PEM格式的证书文件格式  
   
 ## HeartBeat_s 
-设置心跳，在握手协议中，此设置会同步给客户端。
+设置心跳，在握手协议中，此设置会同步给客户端。单位：秒
+### 其它设置
+默认 config 文件中没有输出，可以直接手动添加
+*  MaxConcurrentPerConnection  单个连接上的同时并发数，默认为5
+*  FrameTimeout_s  对于一帧数据(比如http的一个请求数据或者一个响应数据，或者一次推送)
+需要分多段传输时，段与段之间的最大时间间隔，单位：秒    
+*  MaxBytesPerFrame 每一帧数据的最大byte数，(比如请求，响应，推送)。
 
 ## proxy   
 ### <a name="proxyHeaders"></a>Headers   
 * Key 按照标准的Http头的格式配置，内部会自动转换为标准的格式(首字母大学，其他字母小写)  
 * Value 支持使用[变量](#var)
 * 所有客户端在请求时填写的头信息都会自动填充在Proxy的Headers中
+* 自动添加 Stream-Max-Response 的 key 在 Headers 中，对应的值为 config中配置的 MaxBytesPerFrame
 ### Url
 后端服务的地址，支持使用[变量](#var)
 
@@ -46,13 +53,15 @@ TLS 是否使用TLS, 如果设置为true，则必须设置TlsFile，使用PEM格
 
 
 ## client
-对应的client sdk 在 [这儿](https://github.com/xpwu/streamclient) 
+* 2.x 在 [swift](https://github.com/xpwu/swift-streamclient) [kotlin](https://github.com/xpwu/kt-streamclient)   
+* 对应的client sdk(1.x) 在 [这儿](https://github.com/xpwu/streamclient)
+* go-stream >= v0.1.2 兼容 client 1.x 与 2.x
 
 ## go-client
 go版本的client与push sdk 在 [这儿](https://github.com/xpwu/go-streamclient)
 
 ## sever
-使用此库实现的独立服务在 [这儿](https://github.com/xpwu/streamserver)
+使用此库实现的独立服务在 [这儿](https://github.com/xpwu/streamserver)，此服务支持http协议的推送
 
 ## push demo
 go版本的push [demo](https://github.com/xpwu/go-pushdemo) 
