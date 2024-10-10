@@ -15,8 +15,8 @@ TLS 是否使用TLS, 如果设置为true，则必须设置TlsFile，使用PEM格
 默认 config 文件中没有输出，可以直接手动添加
 *  MaxConcurrentPerConnection  单个连接上的同时并发数，默认为5
 *  FrameTimeout_s  对于一帧数据(比如http的一个请求数据或者一个响应数据，或者一次推送)
-需要分多段传输时，段与段之间的最大时间间隔，单位：秒    
-*  MaxBytesPerFrame 每一帧数据的最大byte数，(比如请求，响应，推送)。
+需要分多段传输时，段与段之间的最大时间间隔，单位：秒，默认值为 10    
+*  MaxBytesPerFrame 每一帧数据的最大byte数，(比如请求，响应，推送)，默认值为 4 * 1024 * 1024 
 
 ## proxy   
 ### <a name="proxyHeaders"></a>Headers   
