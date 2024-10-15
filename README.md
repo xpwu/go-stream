@@ -53,7 +53,7 @@ TLS 是否使用TLS, 如果设置为true，则必须设置TlsFile，使用PEM格
 
 
 ## client
-* 2.x 在 [swift](https://github.com/xpwu/swift-streamclient) [kotlin](https://github.com/xpwu/kt-streamclient)   
+* 2.x 在 [swift](https://github.com/xpwu/swift-streamclient) [kotlin](https://github.com/xpwu/kt-streamclient) [typescript](https://github.com/xpwu/ts-streamclient)  
 * 对应的client sdk(1.x) 在 [这儿](https://github.com/xpwu/streamclient)
 * go-stream >= v0.1.2 兼容 client 1.x 与 2.x
 
